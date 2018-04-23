@@ -1,0 +1,299 @@
+//default.css
+.error
+{
+	color: red;
+	font-weight: bold;
+	font-size: 0.9em;
+	
+}
+
+input[type=submit]
+{
+	background-color:blue;
+	color:white;
+	padding:12px 15px;
+	border: none;
+	cursor:pointer;
+}
+
+input[type=submit]: hover
+{
+	background-color: #45A049;
+
+}
+
+//index.php (Page 1)
+<?php
+//declared data variables
+$discountAmount = 0.00;
+$total = 0.00;
+$salesp = ' ';
+$discountp = ' ';
+//variable for number two
+$two = 2;
+
+//I want to check if the form has posted back and whether data was entered by the user for sales price, and discount percent
+$isPostBack = false;
+if(isset($_POST['submit'])){
+	$isPostBack = true;
+	$salesp = $_POST['salesPrice'];
+	$discountp = $_POST['discount'];
+}
+
+$isValidPrice = true;
+$isValidPercent = true;
+
+//If there is data in the form when it posts back I want to check if the data entered is valid by that >0
+if($isPostBack)
+{
+	
+	$isValidPrice = is_numeric($salesp) && $salesp > 0.0;
+	if($isValidPrice>0)
+	{
+		$salesp = $_POST['salesPrice'];
+	}
+	
+	$isValidPercent = is_numeric($discountp) && $discountp > 0.0;
+	if(($isValidPercent>0))
+	{
+		if($discountp < 101)
+		{
+			$discountp = $_POST['discount'];
+		}
+		else
+		{
+			$discountp = "Must be >0 or <100";
+			
+		}
+		
+	}
+	
+	if ($isValidPrice && $isValidPercent)
+	{ 
+	
+		$discountAmount = $salesp* ($discountp/100);
+		$total = $salesp - $discountAmount;	
+		
+	}//else DoNothing();
+	
+	
+}//else DoNothing();
+	
+	
+	// if the confirm button is pressed I want to ensure that data has been entered in
+	if(isset($_POST['next'])){
+	
+	$salesp = $_POST['salesPrice'];
+	$discountp = $_POST['discount'];
+	
+	}
+	//else DoNothing();
+
+?>	
+	
+<!DOCTYPE html>
+<html>
+	<head>
+			<title> Groot </title>
+			<link rel= "stylesheet" href = "default.css" type = "text/css"/>
+	</head>
+	<body>
+		<h1 style = "background-color: LightGray"> Price Quotation </h1>
+	
+		<form action = "index.php" method = "post">
+		<label for = "salesPrice"> Sales Price <div align = "center">$  </label>
+		<input type = "text" id = "salesPrice" name = "salesPrice" value = "<?php if ($isValidPrice){echo number_format((float)$salesp,$two,'.','');} ?>" />
+	<?php if(!$isValidPrice): ?>
+		<span class= "error"> Invalid Value for Price</span>
+	<?php endif; ?> </div>
+	
+		<br />
+		<label for = "discount"> Discount Percent <div align = "center"> </label>
+		<input type = "text" id = "discount" name = "discount" value = "<?php if ($isValidPercent){echo $discountp;} ?>" /> % 
+	<?php if(!$isValidPercent): ?>
+		<span class= "error"> Invalid Value for Percent</span>
+	<?php endif; ?></div>
+		<br />
+	<?php if ($isValidPrice && $isValidPercent): ?>	
+		<br/>
+		Discount Price <div align = "center">$<?php print number_format((float)$discountAmount,$two,'.',''); ?> 
+		</div>
+		<br/>
+		<br/>
+		Total Price <div align = "center"> $<?php print number_format((float)$total,$two,'.',''); ?>
+		</div>
+	<?php endif; ?>	
+		<br/>		
+		<font color = "blue">Please Enter a Sales Price ,and Discount Percent and click Calculate
+		</font>
+		<br/>
+		<div align = "center">
+
+		<input type = "submit" name="submit" id="submit"  value = "Calculate"  /> 
+	<?php if ($isValidPrice && $isValidPercent): ?>	
+		<input type = "submit" formaction = "confirm.php" name = "next" id = "next"  value = "Confirm" />		
+	<?php endif; ?>	
+		
+		
+		</div>
+	</form>
+	</body>
+</html>
+
+//Confirm.php (Page 2)
+
+<?php
+
+//declared variables
+	$discountAmount = 0.00;
+	$total = 0.00;
+	$sale = 0.00;
+	$dis = 0.00;
+	$name = ' ';
+	$email = ' ';
+	
+/* 
+
+if values for sales price and discount amount exist then calculations are to be made for the total
+else redirect user to index.php
+
+*/	
+	if(is_numeric($_POST['salesPrice']) && is_numeric($_POST['discount']))
+	{
+	$sale = $_POST['salesPrice'];	
+	
+	$dis = $_POST['discount'];		
+	
+	
+	$formatted_sale = number_format((float)$sale,2,'.','');
+	$formatted_discount = number_format((float)$dis,2,'.','');
+	
+	$discountAmount = $sale* ($dis/100);
+		$total = $sale - $discountAmount;
+
+	$formatted_total = number_format((float)$total,2,'.','');
+	}
+	else
+	{
+		header('Location: http://localhost/class/index.php');
+	}
+		
+	$isPostBack = false;
+	if(isset($_POST['send']))
+	{
+	$isPostBack = true;
+	$name = $_POST['namep'];
+	$email = $_POST['email_address'];
+
+	}
+	
+	$isValidName = true;
+	$isValidEmail = true;
+
+	
+if($isPostBack)
+{
+	$isValidName = is_string($name);
+	if($isValidName)
+	{
+		$name = $_POST['namep'];
+	}
+	
+	$isValidEmail = is_string($email);
+	if($isValidEmail)
+	{
+		$email = $_POST['email_address'];
+	}
+	
+	
+}
+
+	
+	?>
+
+<!DOCTYPE html>	
+<html>
+	<head>
+		<title>Groot</title>
+		<link rel= "stylesheet" href = "default.css" type = "text/css"/>
+	</head>
+	<body>
+	<h1 style = "background-color: LightGray"> Quotation Confirmation</h1>
+	
+	
+		<br/>
+		<form action = "confirm.php" method = "post" >
+		<div align = "center">
+	<?php echo 'Sales Price $'.$formatted_sale?>
+		<br/>
+		<br/>
+	<?php echo 'Discount Price $'.$formatted_discount?>
+		<br/>
+		<br/>
+	<?php echo 'Total Price $'.$formatted_total?>	
+		<br/>
+		<br/>
+		
+		<h2>Send Confirmation to</h2>
+		
+		<br/v>
+		<label for = "namep"> Name:   </label>
+		<input type = "namep" id = "namep" name = "namep" value = "<?php if ($isValidName){echo $name;} ?>"  />
+		<br/>
+	<?php if(!$isValidName): ?>
+		<span class= "error"> Invalid entry for name</span>
+	<?php endif; ?>
+		<br/>
+		<label for = "email_address"> Email Address: </label>
+		<input type = "email_address" id = "email_address" name = "email_address" value = "<?php if ($isValidEmail){echo $email;} ?>" />
+		<br/>
+	<?php if(!$isValidEmail): ?>
+		<span class= "error"> Invalid entry for email address</span>
+	<?php endif; ?>
+
+		<br/>
+			
+		<input type = "Submit" name = "send" id = "send" value = "Confirm" formaction = "thankyou.php" /> 
+		<?php if (preg_match('/\bare\b/',$name)): ?>
+		
+		<?php endif;?>
+		<input type = "Submit" formaction = "index.php" value = "Return" />
+		</div>
+		
+		</form>
+		<font color = "blue">Click the Send Quotation to send the quotation via email.
+		</font>
+		
+		
+		
+	</body>
+</html>
+
+//thankyou.php (Page 3)
+
+<?php
+if(($_POST['namep'])&& ($_POST['email_address']))
+{}
+else
+{
+header('Location: http://localhost/class/confirm.php');	
+}
+?>
+
+<!DOCTYPE html>
+<html>
+	<head>
+			<title> Groot </title>
+			
+	</head>
+	<body>	
+	<h1 style = "background-color: LightGray"> Thank you for your purchase </h1>
+	</body>
+</html>
+
+
+
+
+
+
+
